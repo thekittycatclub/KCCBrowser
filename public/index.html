@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCC Browser</title>
+    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="shortcut icon" href="/icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="KCC" />
+    <link rel="manifest" href="/icons/site.webmanifest" />
+    <script src="/kcc/tailwind"></script>
+    <script src="/kcc/lucide"></script>
+	<link rel="stylesheet" href="/css/misc.css">
+	<script src="/scram/scramjet.all.js"></script>
+	<script src="/baremux/index.js" defer></script>
+	<script src="/epoxy/index.js" defer></script>
+	<script src="/js/register-sw.js" defer></script>
+	<script src="/js/search.js" defer></script>
+	<script src="/js/index.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #loadingBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: #EFCA08;
+            z-index: 10002;
+            transition: width 0.3s ease, opacity 0.3s ease;
+        }
+        
+        #loadingOverlay {
+            transition: opacity 0.3s ease;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        #browserHeader {
+            flex-shrink: 0;
+        }
+        
+        #sj-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#EFCA08',
+                        'bg-dark': '#000000',
+                        'bg-card': '#0a0a0a',
+                        'text-primary': '#ffffff',
+                        'text-secondary': '#666666',
+                        border: '#1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="loadingBar"></div>
+    
+    <div id="loadingOverlay" class="fixed inset-0 bg-[#000000] z-[10001] flex items-center justify-center">
+        <div class="flex flex-col items-center gap-4">
+            <i data-lucide="loader-2" class="w-12 h-12 text-[#EFCA08] spinner"></i>
+        </div>
+    </div>
+
+    <div id="browserHeader" class="bg-[#000000] border-b border-[#1a1a1a] z-[1000]">
+        <div class="flex items-end px-2 pt-2 gap-0.5 bg-[#0a0a0a]">
+            <div class="relative flex items-center gap-2 px-4 py-2 bg-[#000000] border border-[#1a1a1a] border-b-0 cursor-pointer transition-[background] duration-150 whitespace-nowrap text-[#ffffff] text-xs rounded-t-lg min-w-[200px] max-w-[240px] -mb-px group hover:bg-[#0a0a0a]">
+                <img id="tab1-favicon" class="w-3.5 h-3.5 flex-shrink-0" src="/icons/favicon.svg">
+                <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap" id="tab1-title">New Tab</span>
+                <div class="w-[18px] h-[18px] flex items-center justify-center rounded-[3px] transition-[background] duration-150 flex-shrink-0 opacity-0 text-[#666666] group-hover:opacity-100 hover:bg-[#1a1a1a] hover:text-white">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </div>
+            </div>
+            <button class="w-8 h-8 flex items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-150 text-[#666666] rounded mb-1 hover:text-white hover:bg-[#1a1a1a]">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+        </div>
+        
+        <div class="flex items-center gap-2 px-3 py-2">
+            <div class="flex gap-1 items-center">
+                <button onclick="KCCBrowserFrameBack()" class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#1a1a1a] hover:text-white" id="backBtn" disabled>
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="KCCBrowserFrameForward()" class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#1a1a1a] hover:text-white" id="forwardBtn" disabled>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+                <button onclick="KCCBrowserFrameReload()" class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" id="refreshBtn">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 flex items-center bg-[#0a0a0a] rounded-md px-3 py-2 mx-3 border border-[#1a1a1a] transition-[border-color] duration-150 focus-within:border-[#EFCA08]">
+                <form id="sj-form" class="w-full flex items-center">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+                <script> window.onload = function() { document.getElementById('sj-search-engine').value = window.localStorage.getItem('KCCBrowser/settings/SEARCH_ENGINE') || 'https://www.google.com/search?q=%s'; }</script>
+                <input id="sj-address" type="text" class="w-full bg-transparent border-none outline-none text-white text-[13px] flex-1 font-['Inter'] mx-2 placeholder:text-[#666666]" placeholder="Search or enter URL...">
+                </form>
+                <i data-lucide="star" class="w-3.5 h-3.5 cursor-pointer"></i>
+            </div>
+            
+            <div class="flex items-center gap-1 ml-auto">
+                <button class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" title="Downloads">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+                <div class="relative">
+                    <button class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" id="extensionsBtn" title="Extensions">
+                        <i data-lucide="puzzle" class="w-4 h-4"></i>
+                    </button>
+                    <div class="absolute top-[calc(100%+8px)] right-0 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-1 min-w-[200px] shadow-[0_8px_24px_rgba(0,0,0,0.8)] hidden z-[10001]" id="extensionsMenu">
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="puzzle" class="w-4 h-4"></i>
+                            <span>Manage Extensions</span>
+                        </div>
+                        <div class="h-px bg-[#1a1a1a] my-1"></div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="shield-off" class="w-4 h-4"></i>
+                            <span>Ad Blocker</span>
+                        </div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="moon" class="w-4 h-4"></i>
+                            <span>Dark Reader</span>
+                        </div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            <span>Privacy Badger</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-px h-5 bg-[#1a1a1a] mx-1"></div>
+                <button class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" title="Profile">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                </button>
+                <div class="relative">
+                    <button class="w-8 h-8 rounded bg-transparent border-none flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" id="settingsBtn" title="Settings">
+                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                    </button>
+                    <div class="absolute top-[calc(100%+8px)] right-0 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-1 min-w-[200px] shadow-[0_8px_24px_rgba(0,0,0,0.8)] hidden z-[10001]" id="settingsMenu">
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="bookmark" class="w-4 h-4"></i>
+                            <span>Bookmarks</span>
+                        </div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                            <span>History</span>
+                        </div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Downloads</span>
+                        </div>
+                        <div class="h-px bg-[#1a1a1a] my-1"></div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                            <span>Settings</span>
+                        </div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="help-circle" class="w-4 h-4"></i>
+                            <span>Help</span>
+                        </div>
+                        <div class="h-px bg-[#1a1a1a] my-1"></div>
+                        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] text-[#666666] flex items-center gap-2.5 hover:bg-[#1a1a1a] hover:text-white">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Exit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-1 px-3 py-1.5 bg-[#000000] border-b border-[#1a1a1a] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="youtube" class="w-3.5 h-3.5"></i>
+                <span>YouTube</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                <span>GitHub</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="twitter" class="w-3.5 h-3.5"></i>
+                <span>Twitter</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                <span>Discord</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="newspaper" class="w-3.5 h-3.5"></i>
+                <span>News</span>
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-1 rounded cursor-pointer transition-all duration-150 text-[#666666] text-xs whitespace-nowrap bg-transparent border-none hover:bg-[#1a1a1a] hover:text-white">
+                <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                <span>Shopping</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="fixed bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-1 shadow-[0_8px_24px_rgba(0,0,0,0.8)] z-[10000] hidden min-w-[180px]" id="contextMenu">
+        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] flex items-center gap-2 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" onclick="window.location.reload()">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Reload
+        </div>
+        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] flex items-center gap-2 text-[#666666] hover:bg-[#1a1a1a] hover:text-white">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            Share
+        </div>
+        <div class="h-px bg-[#1a1a1a] my-1"></div>
+        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] flex items-center gap-2 text-[#666666] hover:bg-[#1a1a1a] hover:text-white">
+            <i data-lucide="code" class="w-4 h-4"></i>
+            View Source
+        </div>
+        <div class="p-2 rounded cursor-pointer transition-all duration-100 text-[13px] flex items-center gap-2 text-[#666666] hover:bg-[#1a1a1a] hover:text-white">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            Inspect
+        </div>
+    </div>
+    
+    <iframe src="/browser-pages/new-tab.html" id="sj-frame"></iframe>
+    
+    <script src="/js/browser/menus.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
