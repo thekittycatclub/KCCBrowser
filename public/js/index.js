@@ -82,6 +82,48 @@ function KCCBrowserFrameForward() {
 function KCCBrowserFrameReload() {
 	KCCFRAME.reload();
 }
+
+/*
+	Functions for the Browser Pages to communicate with the browser's functions
+	(ex. kcc://new-tab)
+*/
+window.addEventListener("message", (event) => {
+  if (event.origin !== window.location.origin) return;
+  try {
+    const iframeUrl = new URL(event.source.location.href);
+    if (!iframeUrl.pathname.startsWith("/browser-pages/")) return;
+  } catch {
+    return;
+  }
+
+  const { type, command, data } = event.data || {};
+  if (type !== "BROWSER_COMMAND") return;
+
+  switch (command) {
+    case "BACK":
+      KCCBrowserFrameBack();
+      break;
+
+    case "FORWARD":
+      KCCBrowserFrameForward();
+      break;
+
+    case "RELOAD":
+      KCCBrowserFrameReload();
+      break;
+
+    case "SETSEARCHENGINE":
+      window.localStorage.setItem("KCCBrowser/settings/SEARCH_ENGINE", data);
+      document.getElementById('sj-search-engine').value = data;
+      break;
+
+    case "SETACTIVEURL":
+      KCCFRAME.go(data);
+      break;
+  }
+});
+
+
 /*
 const searchEngineSelect = document.getElementById('search-engine-select');
 searchEngineSelect.addEventListener('change', () => {

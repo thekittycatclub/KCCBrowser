@@ -30,16 +30,30 @@
                 }
             }
         }
+
+        // ---------------------------
+        // IFRAME → PARENT COMMANDS
+        // ---------------------------
+        function sendBrowserCommand(type, data = null) {
+            window.parent.postMessage(
+                {
+                    type: "BROWSER_COMMAND",
+                    command: type,
+                    data
+                },
+                window.location.origin // same-origin
+            );
+        }
     </script>
 </head>
 <body class="bg-[#000000] text-white font-['Inter'] overflow-x-hidden">
     <div class="min-h-screen flex items-center justify-center p-8">
         <div class="w-full max-w-[800px]">
-            <svg class="block mx-auto mb-20 h-[60px] w-auto opacity-90" viewBox="0 0 181 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="block mx-auto mb-20 h-[60px] w-auto opacity-90" viewBox="0 0 181 55" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.97329 30.3197C4.97329 32.6339 5.338 34.8619 6.01437 36.9507H0V41.924H8.36176C8.75299 42.5385 9.17517 43.1298 9.62829 43.6978L3.31553 50.0139L6.82999 53.5284L13.1461 47.2156C16.8197 50.13 21.468 51.8706 26.5242 51.8706C31.5804 51.8706 36.2288 50.13 39.9024 47.2156L46.2185 53.5284L49.7329 50.0139L43.4201 43.6978C43.8699 43.1267 44.2925 42.5348 44.6867 41.924H53.0484V36.9507H47.0374C47.7275 34.8081 48.0777 32.5707 48.0751 30.3197V2.1377C44.5467 2.13678 41.1101 3.26167 38.2651 5.34874C35.4201 7.4358 33.3153 10.3762 32.2568 13.742H20.7884C19.73 10.3767 17.6257 7.43673 14.7814 5.34972C11.9371 3.2627 8.50113 2.13748 4.97329 2.1377V30.3197ZM26.5242 43.5818L19.8932 36.9507H33.1553L26.5242 43.5818Z" fill="#EFCA08"/>
                 <path d="M120.556 0C124.07 1.65276e-06 127.251 0.474631 130.067 1.46289C132.733 2.39812 134.979 3.42876 136.768 4.57129L138.072 5.4043L137.478 6.83398L133.605 16.1416L132.688 18.3467L130.786 16.9014C129.79 16.1443 128.395 15.323 126.558 14.4482L126.533 14.4375L126.51 14.4248C124.954 13.6281 123.099 13.2012 120.896 13.2012C119.266 13.2012 117.695 13.5479 116.165 14.2539L116.146 14.2637C114.668 14.9245 113.334 15.8782 112.139 17.1475L111.925 17.3887C110.869 18.6101 110.012 20.0362 109.361 21.6826L109.359 21.6895L109.356 21.6963C108.684 23.3571 108.336 25.2037 108.336 27.2559C108.336 29.4771 108.65 31.4656 109.253 33.2393C109.9 35.0096 110.793 36.5073 111.922 37.7568C113.054 38.9651 114.4 39.9027 115.978 40.5732C117.576 41.2336 119.41 41.582 121.507 41.582C123.988 41.582 126.003 41.1819 127.609 40.4551C129.41 39.6406 130.655 38.8368 131.444 38.083L133.311 36.3018L134.393 38.6445L138.469 47.4766L139.062 48.7607L137.975 49.667C137.263 50.2599 136.088 50.9457 134.602 51.7119L134.603 51.7129C133.002 52.5633 131.078 53.2872 128.861 53.9004C126.536 54.5436 124 54.8301 121.271 54.7822L121.261 54.7812C117.126 54.6862 113.359 53.9487 109.989 52.5322L109.96 52.5186C106.668 51.0662 103.833 49.0925 101.479 46.5918L101.473 46.585L101.467 46.5781C99.1752 44.0915 97.4205 41.2383 96.2061 38.0322C94.9898 34.8212 94.3877 31.4051 94.3877 27.7988C94.3877 23.81 94.9823 20.1096 96.1943 16.7158L96.1982 16.7041L96.2021 16.6934C97.4568 13.3155 99.2308 10.3647 101.534 7.86523L101.541 7.85742L101.548 7.85059C103.901 5.34992 106.697 3.41549 109.916 2.0498C113.158 0.674295 116.713 2.35382e-05 120.556 0ZM162.495 0C166.01 3.3714e-05 169.189 0.474708 172.006 1.46289C174.671 2.39817 176.919 3.42869 178.707 4.57129L180.012 5.4043L179.417 6.83398L175.544 16.1416L174.627 18.3467L172.726 16.9014C171.729 16.1443 170.333 15.3231 168.496 14.4482L168.472 14.4375L168.448 14.4248C166.893 13.6282 165.039 13.2012 162.835 13.2012C161.206 13.2012 159.633 13.5478 158.104 14.2539L158.084 14.2637C156.602 14.9268 155.263 15.8851 154.064 17.1611C152.916 18.4319 151.993 19.933 151.301 21.6826L151.295 21.6963C150.623 23.3571 150.274 25.2037 150.274 27.2559C150.274 29.477 150.588 31.4657 151.191 33.2393C151.84 35.0151 152.737 36.5167 153.871 37.7686C155.001 38.9714 156.344 39.9048 157.917 40.5732H157.916C159.515 41.2337 161.349 41.582 163.446 41.582C165.927 41.582 167.941 41.1817 169.548 40.4551C171.348 39.6406 172.593 38.8367 173.383 38.083L175.25 36.3018L176.331 38.6445L180.407 47.4766L181 48.7607L179.914 49.667C179.199 50.2627 178.016 50.953 176.521 51.7236L176.52 51.7227C174.923 52.5684 173.007 53.2898 170.8 53.9004C168.474 54.5435 165.94 54.8301 163.21 54.7822L163.2 54.7812C159.066 54.6862 155.299 53.9486 151.929 52.5322L151.913 52.5254L151.898 52.5186C148.607 51.0663 145.772 49.0924 143.419 46.5918L143.405 46.5781C141.114 44.0916 139.36 41.2382 138.146 38.0322C136.929 34.8212 136.327 31.4051 136.327 27.7988C136.327 23.81 136.921 20.1095 138.133 16.7158L138.137 16.7041L138.141 16.6934C139.395 13.3153 141.17 10.3648 143.474 7.86523L143.479 7.85742L143.486 7.85059C145.84 5.34996 148.636 3.4155 151.854 2.0498C155.097 0.674271 158.653 0 162.495 0ZM71.7705 17.3174L86.0752 1.16602L86.625 0.543945H104.436L101.585 3.6377L81.9707 24.9287L101.771 51.2861L103.989 54.2383H86.8525L86.3008 53.4746L72.1445 33.8945L71.7705 34.2695V54.2383H58.0938V0.543945H71.7705V17.3174ZM153.788 51.2783C153.812 51.2868 153.835 51.2953 153.858 51.3037C153.835 51.2953 153.812 51.2868 153.788 51.2783ZM153.233 51.0713C153.266 51.0839 153.299 51.095 153.331 51.1074C153.276 51.0863 153.222 51.0654 153.167 51.0439L153.233 51.0713ZM107.43 49.1025C107.772 49.317 108.122 49.524 108.479 49.7236L107.949 49.418C107.774 49.3145 107.601 49.2098 107.43 49.1025ZM157.546 42.4111C157.734 42.4833 157.926 42.5498 158.119 42.6143C157.919 42.5473 157.72 42.4776 157.524 42.4023L157.546 42.4111ZM129.062 41.8096V41.8105C129.279 41.7045 129.489 41.5967 129.693 41.4893C129.489 41.5965 129.279 41.7036 129.062 41.8096ZM171.001 41.8096L171 41.8105C171.224 41.7015 171.441 41.5919 171.65 41.4814V41.4805C171.441 41.5908 171.225 41.7006 171.001 41.8096ZM129.77 41.4482C129.915 41.3707 130.057 41.2922 130.196 41.2139C130.057 41.2921 129.915 41.3708 129.77 41.4482ZM130.385 41.1074C130.556 41.0082 130.723 40.9097 130.883 40.8096C130.723 40.9097 130.556 41.0083 130.385 41.1074ZM148.431 27.2559L148.435 26.8594V26.8525C148.432 26.9864 148.431 27.1208 148.431 27.2559ZM116.729 12.0449C116.617 12.083 116.505 12.1228 116.394 12.1641C116.617 12.0813 116.842 12.0046 117.068 11.9346L116.729 12.0449ZM163.867 11.3867C163.824 11.3842 163.781 11.3811 163.738 11.3789L163.71 11.3779C163.763 11.3805 163.815 11.3837 163.867 11.3867ZM143.657 10.4912C143.565 10.609 143.473 10.7279 143.383 10.8477C143.473 10.7279 143.565 10.609 143.657 10.4912ZM144.053 10.001C143.942 10.1337 143.834 10.268 143.727 10.4033C143.837 10.264 143.949 10.1258 144.062 9.98926L144.053 10.001ZM145.235 8.69336L145.242 8.6875C145.409 8.51929 145.578 8.35377 145.749 8.19141C145.576 8.35581 145.404 8.52295 145.235 8.69336ZM112.351 3.10059H112.352H112.351ZM170.906 3.03906L170.472 2.90332C170.46 2.89972 170.448 2.89616 170.436 2.89258C170.594 2.93965 170.751 2.98882 170.906 3.03906Z" fill="#EFCA08"/>
             </svg>
-            
+
             <div class="relative bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg px-5 py-4 flex items-center gap-3 transition-[border-color] duration-150 hover:border-[#EFCA08] focus-within:border-[#EFCA08]">
                 <input type="text" class="flex-1 bg-transparent border-none outline-none text-white text-[15px] font-['Inter'] font-normal placeholder:text-[#666666]" id="mainSearchInput" placeholder="Enter URL or search...">
                 
@@ -47,13 +61,8 @@
                     <button class="w-8 h-8 rounded bg-transparent border border-[#1a1a1a] flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" id="clearBtn" title="Clear">
                         <i data-lucide="x"></i>
                     </button>
-                    <script>
-                        document.getElementById('clearBtn').addEventListener('click', () => {
-                            document.getElementById('mainSearchInput').value = '';
-                        });
-                    </script>
                     <button class="w-8 h-8 rounded bg-transparent border border-[#1a1a1a] flex items-center justify-center cursor-pointer transition-all duration-150 text-[#666666] hover:bg-[#1a1a1a] hover:text-white" id="historyBtn" title="History">
-                            <i data-lucide="history"></i>  
+                        <i data-lucide="history"></i>  
                     </button>
                     
                     <div class="relative">
@@ -92,17 +101,23 @@
     </div>
     
     <script>
+        // ---------------------------
+        // UI LOGIC
+        // ---------------------------
         const selectTrigger = document.getElementById('selectTrigger');
         const selectOptions = document.getElementById('selectOptions');
         const selectedEngine = document.getElementById('selectedEngine');
         const selectArrow = document.getElementById('selectArrow');
-        
+        const mainSearchInput = document.getElementById('mainSearchInput');
+        const visitBtn = document.getElementById('visitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
         selectTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             selectOptions.classList.toggle('hidden');
             selectArrow.classList.toggle('rotate-180');
         });
-        
+
         document.querySelectorAll('.select-option').forEach(option => {
             option.addEventListener('click', () => {
                 const value = option.dataset.value;
@@ -114,59 +129,52 @@
                 option.classList.add('selected', 'text-[#EFCA08]');
                 
                 selectedEngine.textContent = text;
+
+                // Send SETSEARCHENGINE command to parent
+                let engineURLMap = {
+                    google: 'https://www.google.com/search?q=%s',
+                    bing: 'https://www.bing.com/search?q=%s',
+                    duckduckgo: 'https://duckduckgo.com/?q=%s',
+                    brave: 'https://search.brave.com/search?q=%s'
+                };
+                sendBrowserCommand('SETSEARCHENGINE', engineURLMap[value]);
+
                 selectOptions.classList.add('hidden');
                 selectArrow.classList.remove('rotate-180');
             });
         });
-        
+
         document.addEventListener('click', () => {
             selectOptions.classList.add('hidden');
             selectArrow.classList.remove('rotate-180');
         });
-        
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            document.getElementById('mainSearchInput').value = '';
-            document.getElementById('mainSearchInput').focus();
+
+        clearBtn.addEventListener('click', () => {
+            mainSearchInput.value = '';
+            mainSearchInput.focus();
         });
-        
-        document.getElementById('visitBtn').addEventListener('click', () => {
-            const input = document.getElementById('mainSearchInput').value.trim();
-            if (input) {
-                let url = input;
-                
-                if (!input.includes('.') || input.includes(' ')) {
-                    const engine = document.querySelector('.select-option.selected').dataset.value;
-                    const searchUrls = {
-                        google: 'https://www.google.com/search?q=',
-                        bing: 'https://www.bing.com/search?q=',
-                        duckduckgo: 'https://duckduckgo.com/?q=',
-                        brave: 'https://search.brave.com/search?q='
-                    };
-                    url = searchUrls[engine] + encodeURIComponent(input);
-                } else {
-                    if (!input.startsWith('http://') && !input.startsWith('https://')) {
-                        url = 'https://' + input;
-                    }
-                }
-                
-                window.location.href = url;
-            }
+
+        function navigate() {
+            const query = mainSearchInput.value.trim();
+            if (!query) return;
+
+            // Send SETACTIVEURL command to parent
+            sendBrowserCommand('SETACTIVEURL', query);
+        }
+
+        visitBtn.addEventListener('click', navigate);
+        mainSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') navigate();
         });
-        
-        document.getElementById('mainSearchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('visitBtn').click();
-            }
-        });
-        
+
         document.querySelectorAll('.quick-action').forEach(action => {
             action.addEventListener('click', () => {
                 console.log('Quick action clicked:', action.textContent);
             });
         });
     </script>
-    	<script>
-		lucide.createIcons();
-	</script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
