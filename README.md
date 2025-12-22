@@ -1,3 +1,4 @@
+<img align="left" src="https://github.com/thekittycatclub/KCCBrowser/blob/main/README_BANNER.png?raw=true" alt="KCCBrowser by KCCNetwork" height="100">
 # 🐱 KCCBrowser
 **A high-performance web interface designed for speed, privacy, and unrestricted access.**
 
