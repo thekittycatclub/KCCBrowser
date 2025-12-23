@@ -68,9 +68,23 @@ browserUrlInput.addEventListener('keydown', (event) => {
 });
 
 KCCFRAME.addEventListener("urlchange", (e) => {
-	document.querySelector('#sj-address').value = e.url;
-	document.getElementById("tab1-title").textContent = document.getElementById("sj-frame").contentDocument.title;
-	document.getElementById("tab1-favicon").src = document.getElementById("sj-frame").contentDocument.querySelector('link[rel="icon"]').href;
+    const iframe = document.getElementById("sj-frame");
+    document.querySelector('#sj-address').value = e.url;
+    iframe.onload = () => {
+        const doc = iframe.contentDocument;
+        let title = doc?.title;
+        if (!title) {
+            title = new URL(iframe.src).hostname.replace(/^www\./, "");
+        }
+        document.getElementById("tab1-title").innerText = title;
+        const icon = doc?.querySelector('link[rel="icon"]');
+        if (icon && icon.href) {
+            document.getElementById("tab1-favicon").setAttribute(
+                "src",
+                scramjet.encodeUrl(icon.href)
+            );
+        }
+    };
 });
 
 function KCCBrowserFrameBack() {
